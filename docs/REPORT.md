@@ -28,6 +28,9 @@ Errand-runners arrive after places close, wait outside before they open, leave i
 | Database | MongoDB + Mongoose | A plan and its stops form one document; reordering is just reordering an array |
 | Validation | express-validator | Readable rules with per-field messages |
 | Tests | Jest + Supertest | Unit tests for the logic and HTTP tests for the API |
+| Motion | Motion (`motion/react`) | Drag-to-reorder list (`Reorder`) and layout animation when stops move, with reduced-motion support |
+| Toasts | Sonner | Short messages with an Undo action after deleting a stop |
+| Fonts | Geist + Geist Mono (Fontsource) | Clear UI type; monospaced, equal-width digits keep times lined up |
 
 All tools are free. MongoDB can run locally or on the free Atlas tier.
 
@@ -56,15 +59,20 @@ for each stop in order:
 ## 7. Modules
 | Module | Files | Job |
 |---|---|---|
-| Plans | `App.jsx`, `routes/plans.js` | create, list, open, change start time, delete |
-| Stops | `PlanView.jsx`, `StopForm.jsx`, `routes/plans.js` | add, edit, delete, tick items, mark done |
-| Reorder | `PlanView.move()`, `PATCH /stops/reorder` | swap with ↑/↓; server checks every stop appears exactly once |
+| Plans | `App.jsx`, `HoldButton.jsx`, `routes/plans.js` | create, list, open, rename, change start time, hold to delete, sample plan |
+| Stops | `PlanView.jsx`, `StopForm.jsx`, `routes/plans.js` | add, edit, delete with Undo, tick items, mark done |
+| Reorder | `PlanView.move()`, drag handle, `PATCH /stops/reorder` | drag, ↑/↓ buttons or arrow keys; server checks every stop appears exactly once |
 | Schedule | `schedule.js` | times and flags |
+| Timeline | `Timeline.jsx` | opening hours, travel, waiting and visit for every stop on one time axis |
 | Validation & errors | `validation.js`, `app.js`, `api.js` | 400 with field errors, 404, bad JSON, DB down; messages shown in the UI |
-| Responsive UI | `styles.css` | one column on phones, two from 900px |
+| Responsive UI | `styles.css` | one column on phones, two from 900px; light and dark themes; 44px touch targets |
 
 ## 8. Implementation Summary
-Each route runs express-validator rules first. Invalid input gets a 400 with field messages before the database is touched. Handlers save only `matchedData()` (validated fields), so clients can't inject extra fields. Stops are embedded sub-documents. Reorder checks that the id list matches the plan's stops exactly, then rebuilds the array. The React client calls the API through `api.js`, shows server errors in a banner and field errors under form inputs, and uses native browser checks (required, min/max, time inputs) for instant feedback.
+Each route runs express-validator rules first. Invalid input gets a 400 with field messages before the database is touched. Handlers save only `matchedData()` (validated fields), so clients can't inject extra fields. Stops are embedded sub-documents. Reorder checks that the id list matches the plan's stops exactly, then rebuilds the array. The React client calls the API through `api.js`, shows server errors in a banner or toast and field errors under form inputs, and uses native browser checks (required, min/max, time inputs) for instant feedback.
+
+Quick actions (tick an item, mark done, reorder, delete) change the screen at once and save in the background. Saves go through a queue in `PlanView.jsx`, so they reach the server one at a time and in order; the server's reply, with fresh times and flags, replaces the screen once the last save is back. If a save fails, the plan reloads from the server and a toast explains why. Undo re-adds the deleted stop and puts it back in its old position with the reorder endpoint.
+
+The interface uses one set of design tokens (colours, radii, easing) in `styles.css`, with a dark set chosen by `prefers-color-scheme`. Status colours (red, amber, green) are kept for schedule state only and always appear with an icon and a word. Buttons scale slightly when pressed, hover styles apply only to mouse pointers, and animations are switched off or reduced when the device asks for reduced motion.
 
 ## 9. Testing
 **Automated** (`npm test`): 11 tests pass. `schedule.test.js` covers fits, early arrival, both conflict types, the exact-closing edge case, reordering and past midnight. `api.test.js` covers 404, bad JSON, missing/invalid plan fields, invalid id, every invalid stop field and a bad reorder body.
@@ -84,6 +92,10 @@ Each route runs express-validator rules first. Invalid input gets a 400 with fie
 | 10 | Mark done | Tick "Done" | Card faded, name struck | Pass |
 | 11 | Mobile | 390px width | Single column, usable buttons | Pass |
 | 12 | Server stopped | Stop API, reload | "Cannot reach the server" banner | Pass |
+| 13 | Drag to reorder | Drag bank below market by its handle | Order saved, conflict returns | Pass |
+| 14 | Undo delete | Delete a stop, click Undo | Stop back in its old place, ticks kept | Pass |
+| 15 | Hold to delete plan | Quick click, then hold 1.2 s | Click shows a hint; hold deletes | Pass |
+| 16 | Worst-case data | `npm run seed:worst`, view at 320 px | Long names wrap, no sideways scroll, past-midnight times show "+1d" | Pass |
 
 ## 10. Screenshots to capture
 Plan list; a plan with a conflict; the same plan after reordering; stop form with a validation error; ticked items; mobile view; error banner with server stopped; `npm test` output; the plan document in MongoDB Compass/Atlas.
@@ -92,7 +104,7 @@ Plan list; a plan with a conflict; the same plan after reordering; stop form wit
 The app meets every requirement. Users plan multi-stop errands with locations, time windows, priorities and items, reorder freely, and see conflicts instantly, without any claim of optimal routing. It demonstrates a complete React + Express + MongoDB stack with validation, error handling and responsive design.
 
 ## 12. Future Scope
-User accounts; split or overnight opening hours; drag-and-drop ordering; reminders before closing time; offline (PWA) use; sharing plans.
+User accounts; split or overnight opening hours; reminders before closing time; offline (PWA) use; sharing plans.
 
 ## 13. How AI Was Used
 Claude (Anthropic) was used as a development partner. It turned the brief into a requirement checklist, proposed the design, generated the code, tests and documentation, and checked the UI in a headless browser. The code was then trimmed to the minimum the requirements need.

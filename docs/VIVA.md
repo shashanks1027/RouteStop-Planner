@@ -28,7 +28,16 @@ It returns only the validated fields, so a client can't sneak extra fields like 
 The client sends the full new list of stop ids. The server checks that the list has every stop exactly once before rebuilding the array, so stops can't be lost or duplicated.
 
 **10. How is the design responsive?**
-Mobile-first CSS with Grid/Flexbox: one column on phones, two-column form rows from 640px, and the plan list beside the plan from 900px. Buttons are at least 40px tall for touch.
+Mobile-first CSS with Grid/Flexbox: one column on phones, two-column form rows from 640px, and the plan list beside the plan from 900px. On touch screens every button and checkbox row is at least 44px, inputs use 16px text so iOS doesn't zoom, and hover effects only apply to a mouse.
 
 **11. Why does the client call `/api/...` without CORS?**
 The Vite dev server proxies `/api` to Express on port 5000, so the browser only ever talks to one origin.
+
+**12. How does drag-to-reorder work, and is it accessible?**
+Motion's `Reorder` list moves the cards while you drag the ⋮⋮ handle; on release the new id order goes to `PATCH /stops/reorder`. Only the handle starts a drag (`touch-action: none` on it), so the page still scrolls on phones. Keyboard users press the arrow keys on the handle, and the ↑/↓ buttons still work.
+
+**13. What is an optimistic update, and what if the save fails?**
+The screen changes before the server answers, so ticking an item feels instant. Saves are queued so they reach the server in order. If one fails, the app reloads the plan from the server (the source of truth) and shows the error in a toast.
+
+**14. How does the timeline chart work?**
+`Timeline.jsx` turns every time into minutes, finds the earliest and latest minute in the plan, and places each bar with a percentage `left` and `width`. Opening hours are a grey band; the visit bar turns red when it runs past closing. Times after midnight show "+1d".

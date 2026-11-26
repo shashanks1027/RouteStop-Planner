@@ -1,6 +1,6 @@
 # Project Report: RouteStop Planner
 
-**Student:** [Your Name] · **Course:** [Course / Sem] · **College:** [College] · **Subject:** [Subject] · CIA 2
+**Student:** Shashank Singh · **Course:** [Course / Sem] · **College:** S-VYASA · **Subject:** [Subject] · CIA 2
 
 ## 1. Title
 RouteStop Planner: A Multi-stop Errand Organiser with Time-Window Conflict Flagging

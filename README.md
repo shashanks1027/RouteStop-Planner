@@ -79,4 +79,4 @@ Errors: `{ "error": { "message": "...", "details": [{ "field", "message" }] } }`
 ## Limits
 Opening hours can't cross midnight and allow only one window per day. There are no user accounts.
 
-**Author:** [Your Name] · [Course / Semester] · [College] · CIA 2, [Subject]
+**Author:** Shashank Singh · [Course / Semester] · S-VYASA · CIA 2, [Subject]

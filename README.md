@@ -1,5 +1,7 @@
 # 📍 RouteStop Planner
 
+**🌐 Live demo:** https://routestop-planner.onrender.com (free hosting; the first load after idle can take up to a minute)
+
 A multi-stop errand organiser. Make a plan, add stops with a **location**, **opening hours**, **priority** and **things to bring**, put them in your own order, and the app **flags time-window conflicts** (e.g. "you'll reach the bank after it closes").
 
 > Travel and visit times are **your own estimates**. The app does not calculate routes or claim to find the best order.

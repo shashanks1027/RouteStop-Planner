@@ -71,6 +71,15 @@ Tests: `cd server && npm test`
 
 Stress check (API running): `cd server && npm run seed:worst` adds a plan with the longest allowed names, a pasted map link, Hindi and Kannada text, emoji and a day that runs past midnight, plus a one-stop plan. Delete them in the app when done.
 
+## Deploy (Render, free)
+1. MongoDB Atlas: under **Network Access**, allow `0.0.0.0/0`.
+2. Render: **New → Web Service**, connect this repo, and set:
+   - Build command: `npm run build`
+   - Start command: `npm start`
+   - Instance type: **Free**
+   - Environment variable: `MONGO_URI` = your Atlas connection string
+3. Open the `https://<name>.onrender.com` link. The free tier sleeps after 15 minutes idle, so the first load can take up to a minute.
+
 ## API (`/api/plans`)
 | Method | Path | Body |
 |---|---|---|
